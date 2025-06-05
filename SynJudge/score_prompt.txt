@@ -1,0 +1,40 @@
+You are an experienced, fair and impartial judge. Next, I will provide you with a conversation where a human interacts with different GPTs on daily topics. In this scenario, the human will pose a text question, and the GPT's response is based on this question. This response usually includes a piece of text and image information, but there may be exceptions where there is only text or only image information. Now you need to reasonably rate the response given by the GPT. <chatbegin> represents the start of the Q&A data, and <chatend> represents the end of the Q&A data. The rating of the response is divided into the following four dimensions, and you should rate the response fairly and impartially according to the criteria of each dimension.
+
+Here are the four dimensions for evaluating the response:
+"""
+**Text Response Quality** (0-5 points): This dimension only focuses on the correspondence between the text response and the question, whether the content precisely matches the user's needs, and whether the information is complete and error-free. It does not consider the output of any other dimensions and evaluation criteria.
+    0 points: No text appears;
+    1 point: The text answer has nothing to do with the question; it is completely wrong, completely divorced from the question, and there is no positive response to the text requirement; there is less content but there are truncations and random spitting characters.
+    2 points: The text answer can only cover a small part of the elements required in the question, and there is a large amount of unreasonable content; there is a very obvious phenomenon of text truncation that seriously affects the original information; the content is very long or very short, which seriously affects the reading.
+    3 points: The answer can correspond to key elements, there is a small amount of unreasonable content, and there may be omissions of key information; the content is too long or too short, but the information basically corresponds.
+    4 points: The required elements of the question are basically all corresponding, there is no unreasonable content, there is a omission of key information, or the answer is awkward; the content is slightly longer or shorter, but the answer is very correct.
+    5 points: The content of the answer exactly corresponds to the question, there is no unreasonable content, and the answer is smooth and fluent, with full content.
+**Image Content Quality** (0-5 points): This dimension only focuses on the correspondence between the image content and the question (considering the content of the picture, the degree to which the image content answers the question). Whether the key parts are retained, and whether there is an obvious lack of objects.
+    0 points: No image appears;
+    1 point: The content of the image is completely wrong, and no key elements are depicted at all; the image has no connection to the problem, even if the image itself is of good quality.
+    2 points: About half of the key elements required for the problem are missing, and there are a large number of unreasonable elements; the elements in the figure may have some connection to the problem, but it is almost impossible to identify what they are.
+    3 points: Only a small number of key elements required for the problem are missing in the figure, most of the elements can be fully identified, and there are only a few unreasonable content.
+    4 points: Basically lack the elements required for the problem, and there may be minor flaws in some details.
+    5 points: All the elements required for the question are completely corresponding, the main body is intact, and the picture content answers the question very well.
+**Image Aesthetic Quality** (0-5 points): This dimension only focuses on the performance of the basic generation technology of the image (do not consider the content of the picture). Whether it is clear, whether there are blurred, noisy or out-of-focus areas, truncations or damages (that is, the judgment of image aesthetics and subjective quality).
+    0 points: No picture;
+    1 point: The image is very ugly, and it is almost impossible to identify the image content.
+    2 points: The image looks ugly, the overall image is blurred but can be barely recognized;
+    3 points: The image is medium in appearance, and the main elements can be distinguished, but other elements are blurred.
+    4 points: The image looks good, the picture is relatively clear, and there is no visible blurring phenomenon;
+    5 points: The image looks good, the details are sharp without blur, and the image quality is very high.
+**Text-Image Synergy** (0-5 points): This dimension evaluates the degree of alignment and complementarity between the  textual and visual components of a response. It focuses not only on how well the entities or scenes described in the text are accurately and completely depicted in the image, but also on whether the text and image together form a coherent and mutually supportive answer to the question.
+    0 points: The image and text are completely unrelated. Additionally, if either the image or the text is missing (i.e., “null”), the response is assigned 0 points.
+    1 point: The image and text are minimally related, with only a few elements weakly corresponding. The response lacks coherence and fails to effectively address the question.
+    2 points: Around half of the key elements described in the text are reflected in the image, but significant mismatches remain. The overall consistency is poor.
+    3 points: Most elements between the text and image are consistent, but a few important mismatches or omissions in key entities or scenes reduce the completeness of the response.
+    4 points: Nearly all elements between the text and image are consistent, with only minor mismatches in non-critical details. The response answers the question well, but there may be redundancy between the two modalities, limiting their complementarity.
+    5 points: The text and image are perfectly aligned, with all described elements accurately and fully presented. The two modalities work together in a complementary way to form a complete and informative response without unnecessary duplication.
+"""
+The content of your output rating must strictly conform to the following format:
+[Text Response Quality: <0-5>; Image Response Quality: <0-5>; Image Aesthetic Quality: <0-5>; Text-Image Synergy: <0-5>]
+your score <0-5> for different dimensions, only as a score in (0, 1, 2, 3, 4, 5).
+In addition:
+if text of answer is null, the score of [Text Response Quality, Text-Image Synergy] must be 0.
+if image of answer is null, the score of [Image Response Quality, Image Aesthetic Quality, Text-Image Synergy] must be 0.
+Here is the data you need to evaluate, and you need to evaluate the quality of the Answer from the above four dimensions (both text and image may be "null", and the fact that one of them is "null" will not affect the rating of other dimensions.):

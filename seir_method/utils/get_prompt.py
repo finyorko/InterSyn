@@ -1,0 +1,155 @@
+def get_gen_q_prompt(topic, ques_temp, history_qac_list):
+    if len(history_qac_list):
+        gen_q_prompt = f"I am constructing a multi-turn question-answer dataset. Below are the historical question-answer records:\n{history_qac_list}. \n"
+    else:
+        gen_q_prompt = f"I am building a question-answer dataset."
+    gen_q_prompt += (
+            f"The topic of this dataset item is ({topic}). Your task is to generate a question based on this topic. "
+            f"The length of the question should not exceed 50 words. Here is the question template: \n{ques_temp}.\n"
+            f"The new question you generate can refer to the sentence pattern of the question template. "
+            f"The question must meet the following detailed requirements: "
+            f"1. **Incorporate Image Request Naturally**: Clearly express the need to generate a picture, but use varied and creative expressions to make the request feel natural and human-like. Avoid repetitive phrases like 'maybe generate a picture.' Instead, use diverse sentence structures to request the image. "
+            f"2. **Varied Sentence Structures**: Diversify how questions are phrased. Use different ways of asking, such as open-ended questions, hypothetical scenarios, or requests for examples. "
+            f"3. **Conciseness and Clarity**: Ensure the question is still concise and immediately understandable but without sounding repetitive or formulaic. Avoid redundant language. "
+            f"4. **Topic Relevance**: Keep the question focused on the given topic ({topic}), ensuring it remains engaging and meaningful. Avoid weak connections to the topic. "
+            f"5. **Approachable Tone**: Use a conversational, approachable tone that mimics real human interactions. Keep it friendly and engaging, avoiding overly formal or robotic expressions. "
+            f"6. **Lexical Simplicity with Creativity**: Use everyday vocabulary with occasional creative language that fits the topic. Ensure accessibility for a broad audience while maintaining interest. "
+            f"7. **Question Value and Inspiration**: Make the question thought-provoking or creative, capable of inspiring meaningful answers. Avoid overly simple or overly complex questions. "
+            f"8. **Image Context**: Clearly specify what kind of picture is expected, but do so creatively. "
+            f"Output only the generated question directly. Do not include explanations, instructions, or any extra text."
+        )
+    return gen_q_prompt
+
+def get_mod_q_suggestion_prompt(topic, old_q, history_qac_list):
+    json_format = '{"suggestion": "suggestion output here"}'
+    if len(history_qac_list):
+        mod_q_suggeation_prompt = (
+            f"I'm constructing a multi-turn question-answer dataset. Below are the historical question-answer records:\n {history_qac_list}. \n"
+            f"The first step is to pose a question by imitating human needs and tones based on a specific topic. I need you to help me evaluate and revise it. "
+        )
+    else:
+        mod_q_suggeation_prompt = (
+            f"I am currently constructing a question-answer dataset. The first step is to imitate human needs and tone based on a certain topic and ask a question."
+            f"This question needs to include the requirement for generating textual content and a picture."
+        )
+    mod_q_suggeation_prompt += (
+        f"The topic is: ({topic}).\n"
+        f"The following is a question generated based on this topic:\n{old_q}\n"
+        f"You need to analyze the quality of this question from a human perspective, such as whether the question is too wordy? "
+        f"Is the question sentence pattern not commonly used in human daily communication? How well does the question fit the topic? "
+        f"Does the tone of the question sound human? Are there any uncommon expressions in the sentence? "
+        f"Is it a meaningless question? Does the question contain a request for generating an image? Is the generated question easy to answer? And so on. "
+        f"You need to help me provide revision suggestions. It would be best if the suggestions are concise and brief, and not too long. "
+        f"If you think the original question is not good in other aspects, you need to help me give modification suggestions."
+        f"Only output the modification suggestions in the end, and there is no need to output the modified results."
+        f"Your output should conform to this format {json_format}"
+        f"If you think the original question is good enough, you don't need to give improvement suggestions. You only need to output None."
+        f"Therefore, your final output is either None or the modification suggestions."
+    )
+    return mod_q_suggeation_prompt
+
+def get_mod_q_prompt(old_q, mod_q_suggestion):
+    mod_q_prompt = (
+        f"I am currently constructing a question-answer dataset.\n"
+        f"The following is the original question generated by an LLM:\n{old_q}\n\n"
+        f"However, I believe the quality of this question can be improved, as it doesn't sound like something people would naturally ask in daily communication.\n\n"
+        f"I have provided some modification suggestions: {mod_q_suggestion}.\n"
+        f"Please revise the question based on these suggestions and the given topic, making it sound more natural and human-like.\n"
+        f"Finally, output only the modified question without any additional text."
+    )
+    return mod_q_prompt
+
+def get_gen_ac_prompt(final_q, history_qac_list):
+    if len(history_qac_list):
+        gen_ac_prompt = (
+            f"Currently, I'm constructing a multi-turn dialogue dataset. Here are the historical question and answer records: \n{history_qac_list}\n"
+            f"Based on this historical question and answer content, you need to answer this new question: \n{final_q}\n."
+        )
+    else:
+        gen_ac_prompt = f"Currently, I'm constructing a question-answer dataset. This is the current question: \n{final_q}\n"
+    gen_ac_prompt += (
+        f"Since this question usually contains a requirement for textual answer and image generation., but you don't need to generate the actual image. Instead, you should generate an answer and a description of the image according to the question."
+        f"To ensure high Image–Text Synergy (ITS), write the 'answer:' line so it gives the core explanation while referencing key visual elements, and write the 'caption:' line so it adds complementary details that the text omits; the two lines must stay tightly aligned, avoid duplication, and together convey more than either could alone."
+        f"Therefore, your response should include an answer to the question: answer; and a description of the image: caption. And you are not allowed to output responses like 'I can't generate images.' You need to pretend that you can."
+        f"The image description must not exceed 65 words. This last point is very important! You just need to output in two lines and there should be no other content. The output content: start the first line with 'answer:', representing the answer; start the second line with 'caption:', representing the caption."
+        f"Your answer should be related to the previous content and must not be repetitive."
+    )
+    return gen_ac_prompt
+
+def get_mod_ac_suggestion_prompt(final_q, old_ac, history_qac_list):
+    json_format = '{"suggestion": "suggestion output here"}'
+    if len(history_qac_list):
+        mod_ac_suggestion_prompt = f"I am constructing a multi-turn question-answer dataset. Below are the historical question-answer records:\n{history_qac_list}. \n"
+    else:
+        mod_ac_suggestion_prompt = f"Currently, I'm constructing a question-answer dataset."
+    mod_ac_suggestion_prompt += (
+        f"Here is the question: \n{final_q}\n. "
+        f"The question usually includes the requirement for textual answer and image generation."
+        f"Then, here is the answer to this question:\n{old_ac}\n"
+        f"The answer is divided into two parts, including the textual answer to the question and an image description."
+        f"Do you think the combination of this answer and image description can fully meet the requirements of the question? Are the image description and the answer content consistent and not redundant? "
+        f"How is the correlation among the question, the answer and the image description? Does it conform to the habits of human answering questions?"
+        f"If you were a knowledgeable human expert, how do you think you would answer this question? Would the answer seem too wordy? "
+        f"Would the overlap between the answer and the image description be too high? Can the image description well summarize a picture?"
+        f"If you were a nitpicking critic, do you think there are areas for improvement in this question, the answer and the image description?"
+        f"Would the image description be too short and not rich enough in content? Are there any discriminatory elements in the answer and the image description? And so on."
+        f"You can give modification suggestions based on the above aspects. Or if you think the answer is unreasonable in other aspects, you also need to give your modification suggestions. "
+        f"In addition, the modification suggestions need to be divided into two parts: the answer and the image description. And the content needs to be concise and condensed, not overly long."
+        f"Or if you think the answer and the image description are already perfect, you don't need to put forward improvement suggestions, and just output None."
+        f"Therefore, your final output is either None or the modification suggestions."
+        f"Only output the modification suggestions in the end, and there is no need to output the modified results.Your output should conform to this format {json_format} or None."
+    )
+    return mod_ac_suggestion_prompt
+
+
+def get_mod_ac_prompt(old_ac, mod_ac_suggestion):
+    mod_ac_prompt = (
+        f"You are tasked with improving the output of a model output based on the suggestion feedback."
+        f" Here is the context and what you need to do step by step:\n\n"
+        f"Model Output to Modify (old_ac): \n{old_ac}\n"
+        f"This is the current answer generated by the model. The answer is divided into two parts:\n"
+        f"- 'answer': This is the text answer to the question.\n"
+        f"- 'caption': This is the image description associated with the answer.\n\n"
+        f"Modification Suggestion (mod_ac_suggestion): \n{mod_ac_suggestion}\n"
+        f"This is the suggestion for improving the model's output, including corrections or enhancements to both the 'answer' and 'caption' parts.\n\n"
+        f"Your task is to:\n"
+        f"- According to the provided mod_ac_suggestion, update the 'answer' and 'caption' sections in old_ac.\n"
+        f"- Ensure that the updated 'caption' does not exceed 65 words.\n"
+        f"- Follow the specified format strictly.\n\n"
+        f"Important: You just need to output in two lines and there should be no other content. "
+        f"The output content: start the first line with 'answer:', representing the answer; start the second line with 'caption:', representing the caption."
+    )
+    return mod_ac_prompt
+
+def get_mod_c_suggestion_prompt(final_q, final_a, old_c, history_qac_list):
+    json_format = '{"suggestion": "suggestion output here"}'
+    if len(history_qac_list):
+        mod_c_suggesiont_prompt = f"I am constructing a multi-turn question-answer dataset. Below are the historical question-answer records:\n{history_qac_list}. \n"
+    else:
+        mod_c_suggesiont_prompt = f"Currently, I'm constructing a question-answer dataset."
+    mod_c_suggesiont_prompt += (
+        f"Here is the question: \n{final_q}\n. "
+        f"This question usually contains a request for generating textual content and a picture."
+        f"Then, this is the original answer final_a: {final_a} and the image description old_c: {old_c} generated according to this question,"
+        f"You now need to evaluate the quality of the image description and the image based on the question and the answer. Does the image match the image description?"
+        f"When proposing revisions, follow the Image–Text Synergy (ITS) principle: suggest changes that make the picture (and its caption) complement rather than repeat the fixed textual answer, depict the visual elements the answer references, reduce redundancy or irrelevant details, and keep full factual consistency so that image + text together convey more than either could alone."
+        f"How is the degree of correlation between the image description and the content of the answer to the question? Can the image description well summarize the content of the picture?"
+        f"Are there any unreasonable objects or behaviors in the image? Is the image description clear and not wordy? And so on."
+        f"You can give modification suggestions regarding the image description based on the above aspects. Suggestions in other aspects not mentioned above are also highly encouraged to be put forward."
+        f"The revision suggestions you provide need to be concise and condensed, and shouldn't be too long."
+        f"If you think the image description and the image for this question and answer are already perfect, then you don't need to put forward any suggestions and just output None."
+        f"Therefore, your final output is only None or the modification suggestions."
+        f"Only output the modification suggestions in the end, and there is no need to output the modified results.Your output should conform to this format {json_format} or None."
+    )
+    return mod_c_suggesiont_prompt
+
+def get_mod_c_prompt(old_c, mod_c_suggestion):
+    mod_c_prompt = (
+        f"Currently, I'm constructing a question-answer dataset. The question usually includes the requirement for textual answer and image generation."
+        f"Then, this is the image description of the answer: \n{old_c}\n"
+        f"Then I think the quality of the image description is not very high."
+        f"I have provided some modification suggestions here: \n{mod_c_suggestion}\n"
+        f"Please regenerate the image description according to these suggestions."
+        f"The length of the picture description should not exceed 65 words. In the end, you only need to output the modified image description."
+    )
+    return mod_c_prompt
